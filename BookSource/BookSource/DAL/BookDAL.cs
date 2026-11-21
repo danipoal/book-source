@@ -1,5 +1,5 @@
 ﻿using BookSource.Models;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -15,16 +15,16 @@ namespace BookSource.DAL
 
         public List<Book> GetAllBooks()
         {
-            using(SqlConnection connection = new SqlConnection(connectionString))
+            using(NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 List<Book> books = new List<Book>();
 
                 string query = "SELECT * FROM Book;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 connection.Open();
 
-                using(SqlDataReader reader = cmd.ExecuteReader())
+                using(NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())   // El while Read lee por cada fila de el resultado de la query
                     {
@@ -52,16 +52,16 @@ namespace BookSource.DAL
 
         public List<Book> GetTopTenBooks()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 List<Book> books = new List<Book>();
 
-                string query = "SELECT TOP 10 * FROM Book ORDER BY Score DESC ;";
+                string query = "SELECT * FROM Book ORDER BY Score DESC NULLS LAST LIMIT 10;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 connection.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())   // El while Read lee por cada fila de el resultado de la query
                     {
@@ -89,16 +89,16 @@ namespace BookSource.DAL
 
         public Book GetBookByTitle(string bookTitle)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
 
-                string query = "SELECT * FROM Book WHERE Title = @Title; ";
+                string query = "SELECT * FROM Book WHERE Title = @Title::citext; ";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@Title", bookTitle);
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if(reader.Read())
                     {
@@ -122,16 +122,16 @@ namespace BookSource.DAL
 
         public Book GetBookById(int bookId)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
 
                 string query = "SELECT * FROM Book WHERE IdBook = @IdBook; ";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@IdBook", bookId);
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -155,13 +155,13 @@ namespace BookSource.DAL
 
         public bool CreateBook(Book book)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
 
                 string query = "INSERT INTO Book(Title, Author, Description, ImageUrl, Subtitle, Editorial, PageCount, Score) "
                               + "VALUES (@Title, @Author, @Description, @ImageUrl, @Subtitle, @Editorial, @PageCount, @Score)";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@Title", book.Title);
                 cmd.Parameters.AddWithValue("@Author", book.Author);
                 cmd.Parameters.AddWithValue("@Description", book.Description);
@@ -185,16 +185,16 @@ namespace BookSource.DAL
 
         public List<Book> GetBooksByIdList(int ListBookId)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM ListOfBooks_Book l INNER JOIN Book b " +
                     "ON l.FkIdBook = b.IdBook WHERE l.FkIdListOfBooks = @FkIdListOfBooks;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@FkIdListOfBooks", ListBookId);
                 conn.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     List<Book> list = new List<Book>();
 
@@ -235,15 +235,15 @@ namespace BookSource.DAL
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@category", category);
 
                         connection.Open();
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -298,15 +298,15 @@ namespace BookSource.DAL
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         //cmd.Parameters.AddWithValue("@category", category);
 
                         connection.Open();
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {

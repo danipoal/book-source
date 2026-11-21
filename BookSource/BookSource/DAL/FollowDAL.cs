@@ -1,5 +1,5 @@
 ﻿using BookSource.Models;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -16,13 +16,13 @@ namespace BookSource.DAL
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
                     string query = 
                         "INSERT INTO Follow (FkIdFollower, FkIdFollowed) " +
                         "VALUES (@FkIdFollower, @FkIdFollowed);";
 
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@FkIdFollower", followerId);
                         cmd.Parameters.AddWithValue("@FkIdFollowed", followedId);
@@ -45,19 +45,19 @@ namespace BookSource.DAL
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
                     string query = "SELECT * FROM Follow f "
-                        + "INNER JOIN[User] u ON f.FkIdFollower = u.IdUser "
+                        + "INNER JOIN \"user\" u ON f.FkIdFollower = u.IdUser "
                         + "WHERE FkIdFollowed = @FkIdFollowed; ";
 
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@FkIdFollowed", userId);
 
                         connection.Open();
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -90,19 +90,19 @@ namespace BookSource.DAL
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
                     string query = "SELECT * FROM Follow f "
-                        + "INNER JOIN[User] u ON f.FkIdFollowed = u.IdUser "
+                        + "INNER JOIN \"user\" u ON f.FkIdFollowed = u.IdUser "
                         + "WHERE FkIdFollower = @FkIdFollower; ";
 
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@FkIdFollower", userId);
 
                         connection.Open();
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -140,9 +140,9 @@ namespace BookSource.DAL
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@followerId", followerId);
                         cmd.Parameters.AddWithValue("@followedId", followedId);

@@ -360,3 +360,19 @@ Backend
 
 - [https://www.youtube.com/watch?v=cMXTd6PoFpo](https://www.youtube.com/watch?v=cMXTd6PoFpo) DEPLOY JAVA + SPRINGBOOT + DOCKER
 - jwt (LOGIN)
+
+## Base de datos: PostgreSQL
+
+La aplicación usa **PostgreSQL** (antes SQL Server) con el driver `Npgsql`.
+Esquema y datos iniciales en `BookSource/postgres/` (`01-schema.sql`, `02-data.sql`);
+se cargan solos al crear el volumen. Para levantar todo en local:
+
+```bash
+cd BookSource && docker compose up --build
+```
+
+La cadena de conexión se puede sobrescribir con la variable de entorno
+`ConnectionStrings__DefaultConnection`. Las columnas de texto que se buscan
+(usuario, email, título, autor, categoría) son `citext` para mantener las
+comparaciones sin distinguir mayúsculas de SQL Server. Los scripts de `SQL/` y
+la herramienta `BookScraper` siguen apuntando a SQL Server (no migrados).

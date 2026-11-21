@@ -1,5 +1,5 @@
 ﻿using BookSource.Models;
-using System.Data.SqlClient;
+using Npgsql;
 using System.Net;
 
 namespace BookSource.DAL
@@ -16,16 +16,16 @@ namespace BookSource.DAL
 
         public List<Category> GetCategoryByBookId(int BookId)
         {
-            using(SqlConnection conn = new SqlConnection(connectionString))
+            using(NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM Book_Category b INNER JOIN Category c " +
                     "ON b.FkIdCategory = c.IdCategory WHERE b.FkIdBook = @FkIdBook;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@FkIdBook", BookId);
                 conn.Open();
 
-                using(SqlDataReader reader = cmd.ExecuteReader())
+                using(NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     List<Category> categories = new List<Category>();
                     while (reader.Read())
@@ -45,14 +45,14 @@ namespace BookSource.DAL
 
         public List<Category> GetAllCategories() 
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM Category;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 conn.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     List<Category> categories = new List<Category>();
                     while (reader.Read())
