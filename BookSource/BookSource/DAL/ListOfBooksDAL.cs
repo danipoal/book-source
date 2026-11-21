@@ -1,6 +1,6 @@
 ﻿using BookSource.Models;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -16,15 +16,15 @@ namespace BookSource.DAL
 
         public List<ListOfBooks> GetListsOfByUserId(int UserId)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM ListOfBooks WHERE FkIdUser = @FkIdUser";
-                SqlCommand cmd = new SqlCommand (query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand (query, conn);
 
                 cmd.Parameters.AddWithValue("@FkIdUser", UserId);
                 conn.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     List<ListOfBooks> list = new List<ListOfBooks>();
                     while (reader.Read())
@@ -44,15 +44,15 @@ namespace BookSource.DAL
 
         public ListOfBooks GetListOfBooksById(int ListOfBookId)
         {
-            using(SqlConnection conn = new SqlConnection(connectionString))
+            using(NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM ListOfBooks WHERE IdListOfBooks = @IdListOfBooks;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@IdListOfBooks", ListOfBookId);
                 conn.Open();
 
-                using(SqlDataReader reader = cmd.ExecuteReader())
+                using(NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -70,11 +70,11 @@ namespace BookSource.DAL
 
         public bool CreateListOfBooks(ListOfBooks listOfBooks)
         {
-            using(SqlConnection conn = new SqlConnection(connectionString))
+            using(NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "INSERT INTO ListOfBooks(ListName, FkIdUser)" +
                     "VALUES(@ListName, @FkIdUser)";
-                SqlCommand cmd = new SqlCommand (query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand (query, conn);
 
                 cmd.Parameters.AddWithValue("@ListName", listOfBooks.ListName); 
                 cmd.Parameters.AddWithValue("@FkIdUser", listOfBooks.RIdUser);
@@ -95,10 +95,10 @@ namespace BookSource.DAL
         // libros de esa lista
         public bool RemoveListOfBooks(ListOfBooks listOfBooks)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "DELETE FROM ListOfBooks WHERE IdListOfBooks = @IdListOfBooks";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@IdListOfBooks", listOfBooks.IdListOfBooks);
                 conn.Open();
@@ -117,11 +117,11 @@ namespace BookSource.DAL
         // No modificar el Id, sino no funcionará
         public ListOfBooks UpdateListOfBooks(ListOfBooks listOfBooks)
         {
-            using(SqlConnection conn = new SqlConnection(connectionString))
+            using(NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
-                string query = "UPDATE ListOfBooks SET ListName = @ListName," +
+                string query = "UPDATE ListOfBooks SET ListName = @ListName " +
                     "WHERE IdListOfBooks = @IdListOfBooks;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@IdListOfBooks", listOfBooks.IdListOfBooks);
                 cmd.Parameters.AddWithValue("@ListName", listOfBooks.ListName);
@@ -139,10 +139,10 @@ namespace BookSource.DAL
         }
         public bool AddBookToListOfBooks(int idListOfBooks,int idBook)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = $"INSERT INTO ListOfBooks_Book VALUES(@IdListOfBooks,@IdBook)";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@IdListOfBooks", idListOfBooks);
                 cmd.Parameters.AddWithValue("@IdBook", idBook);
@@ -159,11 +159,11 @@ namespace BookSource.DAL
         }
         public bool DeleteBookToListOfBooks(int idListOfBooks, int idBook)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = $"DELETE FROM ListOfBooks_Book " +
                     $"WHERE FkIdBook = @IdBook AND FkIdListOfBooks = @IdListOfBooks";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@IdBook", idBook);
                 cmd.Parameters.AddWithValue("@IdListOfBooks", idListOfBooks);
@@ -178,10 +178,10 @@ namespace BookSource.DAL
                 return false;
             }
         }
-        string DebugSqlCommand(SqlCommand command)
+        string DebugSqlCommand(NpgsqlCommand command)
         {
             string debugQuery = command.CommandText;
-            foreach (SqlParameter param in command.Parameters)
+            foreach (NpgsqlParameter param in command.Parameters)
             {
                 string paramValue = param.Value == null ? "NULL" : param.Value.ToString();
                 debugQuery = debugQuery.Replace(param.ParameterName, $"'{paramValue}'");
@@ -191,11 +191,11 @@ namespace BookSource.DAL
 
         public ListOfBooks AddBookToListBook(ListOfBooks listOfBooks, Book book)
         {
-            using(SqlConnection conn = new SqlConnection(connectionString))
+            using(NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 string query = "INSERT INTO ListOfBooks_Book(FkIdListOfBooks, FkIdBook) " +
                     "VALUES(@FkIdListOfBooks, @FkIdBook)";
-                SqlCommand cmd = new SqlCommand(query,conn);
+                NpgsqlCommand cmd = new NpgsqlCommand(query,conn);
 
                 cmd.Parameters.AddWithValue("@FkIdListOfBooks", listOfBooks.IdListOfBooks);
                 cmd.Parameters.AddWithValue("@FkIdBook", book.IdBook);

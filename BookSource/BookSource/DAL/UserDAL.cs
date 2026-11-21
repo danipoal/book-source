@@ -3,7 +3,7 @@ using BookSource.Tools;
 using Microsoft;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -23,16 +23,16 @@ namespace BookSource.DAL
         public User GetUsuarioLogin(string username, string password)
         {
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "SELECT * FROM [User] WHERE UserName = @UserName;";
+                string query = "SELECT * FROM \"user\" WHERE UserName = @UserName::citext;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@UserName", username);
 
                 connection.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -66,12 +66,12 @@ namespace BookSource.DAL
         {
             PasswordHelper.CreatePasswordHash(password, out byte[] PasswordHash, out byte[] PasswordSalt);
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "INSERT INTO [User](UserName, Email, PasswordHash, PasswordSalt, BirthDate, ProfileImageUrl)"
+                string query = "INSERT INTO \"user\"(UserName, Email, PasswordHash, PasswordSalt, BirthDate, ProfileImageUrl)"
                              + "VALUES (@UserName, @Email, @PasswordHash, @PasswordSalt, @BirthDate, @ProfileImageUrl);";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@UserName", user.UserName);
                 cmd.Parameters.AddWithValue("@Email", user.Email);
                 cmd.Parameters.AddWithValue("@PasswordHash", PasswordHash);
@@ -99,17 +99,17 @@ namespace BookSource.DAL
         [Obsolete]
         public User GetUserByUserName(string userName)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "SELECT * FROM [User] WHERE UserName = @UserName;";
+                string query = "SELECT * FROM \"user\" WHERE UserName = @UserName::citext;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@UserName", userName);
 
                 connection.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -130,17 +130,17 @@ namespace BookSource.DAL
         }
         public User GetUserById(int Id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "SELECT * FROM [User] WHERE IdUser = @IdUser;";
+                string query = "SELECT * FROM \"user\" WHERE IdUser = @IdUser;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@IdUser", Id);
 
                 connection.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -162,14 +162,14 @@ namespace BookSource.DAL
 
         public List<User> GetAllUsers()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "SELECT * FROM [User]";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                string query = "SELECT * FROM \"user\"";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 List<User> users = new List<User>();
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -211,7 +211,7 @@ namespace BookSource.DAL
                 string query;
                 if (user.PasswordSalt != null && user.PasswordHash != null)
                 {
-                    query = "UPDATE [User] SET BirthDate = @BirthDate, "
+                    query = "UPDATE \"user\" SET BirthDate = @BirthDate, "
                         + "ProfileImageUrl = @ProfileImageUrl,"
                         + "PasswordHash = @PasswordHash,"
                         + "PasswordSalt = @PasswordSalt "
@@ -219,15 +219,15 @@ namespace BookSource.DAL
                 }
                 else
                 {
-                    query = "UPDATE [User] SET BirthDate = @BirthDate, " 
+                    query = "UPDATE \"user\" SET BirthDate = @BirthDate, " 
                         + "ProfileImageUrl = @ProfileImageUrl " 
                         + "WHERE IdUser = @IdUser";
                 }
 
 
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@IdUser", user.IdUser);
                         cmd.Parameters.AddWithValue("@BirthDate", user.BirthDate == null ? DBNull.Value : user.BirthDate);

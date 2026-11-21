@@ -1,0 +1,39 @@
+# Desarrollo local: PostgreSQL + app .NET.
+# El esquema y los datos iniciales (postgres/*.sql) se cargan solos la primera
+# vez que se crea el volumen. Para recrearlos: docker compose down -v
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: booksource-postgres
+    environment:
+      POSTGRES_DB: booksource
+      POSTGRES_USER: booksource
+      POSTGRES_PASSWORD: booksource_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booksource -d booksource"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  dotnetapp:
+    build:
+      context: ./BookSource
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8081
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=booksource;Username=booksource;Password=booksource_dev"
+    ports:
+      - "5000:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

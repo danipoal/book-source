@@ -1,6 +1,6 @@
 ﻿using BookSource.Models;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -17,14 +17,14 @@ namespace BookSource.DAL
         {
             var reviews = new List<Review>();
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
                 string query = "SELECT IdReview, Comment, FKIdBook, FKIdUser FROM Review" +
                     " WHERE FKIdBook = @idBook";
 
-                using (var command = new SqlCommand(query, connection))
+                using (var command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@idBook", idBook);
 
@@ -51,16 +51,16 @@ namespace BookSource.DAL
         }
         public Review GetReviewById(int idReview)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 string query = "SELECT * FROM Review WHERE IdReview = @IdReview; ";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@IdReview", idReview);
 
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -79,14 +79,14 @@ namespace BookSource.DAL
         }
         public Review CreateReview(Review review)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 string query = "INSERT INTO Review(Comment, FkIdBook, FkIdUser) " +
                         "VALUES(@Comment, @FkIdBook, @FkIdUser) " +
-                        "SELECT SCOPE_IDENTITY();";
+                        "RETURNING IdReview;";
 
 
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@Comment", review.Comment);
                 cmd.Parameters.AddWithValue("@FkIdBook", review.RIdBook);

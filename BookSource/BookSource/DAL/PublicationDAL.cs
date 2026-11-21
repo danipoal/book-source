@@ -1,5 +1,5 @@
 ﻿using BookSource.Models;
-using System.Data.SqlClient;
+using Npgsql;
 
 namespace BookSource.DAL
 {
@@ -16,16 +16,16 @@ namespace BookSource.DAL
 
         public Publication GetPublicationById(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM Publication WHERE IdPublication = @IdPublication; ";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@IdPublication", id);
 
 
                 connection.Open();
-                using(SqlDataReader reader = cmd.ExecuteReader())
+                using(NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -46,14 +46,14 @@ namespace BookSource.DAL
         }
         public List<Publication> GetAllPublications()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM Publication";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 List<Publication> publications = new List<Publication>();
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -72,14 +72,14 @@ namespace BookSource.DAL
         }
         public List<PublicationLikes> GetAllLikes()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "SELECT * FROM PublicationLikes";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
                 List<PublicationLikes> pub_likes = new List<PublicationLikes>();
 
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -95,22 +95,22 @@ namespace BookSource.DAL
         }
         public Publication CreatePublication(Publication publication)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query;
                 if (publication.PubImage != null)
                 {
                     query = "INSERT INTO Publication(Title, Content, PubImage, FkIdUser) " +
                         "VALUES(@Title, @Content, @PubImage, @FkIdUser) " +
-                        "SELECT SCOPE_IDENTITY();";
+                        "RETURNING IdPublication;";
                 }
                 else
                 {
                     query = "INSERT INTO Publication(Title, Content, FkIdUser) " +
                         "VALUES(@Title, @Content, @FkIdUser) " +
-                        "SELECT SCOPE_IDENTITY();";
+                        "RETURNING IdPublication;";
                 }
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@Title", publication.Title);
                 cmd.Parameters.AddWithValue("@Content", publication.Content);
@@ -126,14 +126,14 @@ namespace BookSource.DAL
         }
         public int GetLikesByPublicationId(int publicationId)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                string query = "SELECT COUNT(*) as likes FROM PublicationLikes WHERE FkIdPublication= @FkIdPublication; ";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                string query = "SELECT COUNT(*)::int AS likes FROM PublicationLikes WHERE FkIdPublication= @FkIdPublication; ";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@FkIdPublication", publicationId);
                 connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -145,10 +145,10 @@ namespace BookSource.DAL
         }
         public bool AddLikeToPublication(PublicationLikes publicationLike)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "INSERT INTO PublicationLikes(FkIdPublication, FkIdUser) VALUES(@FkIdPublication, @FkIdUser) ";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@FkIdPublication", publicationLike.RIdPublication);
                 cmd.Parameters.AddWithValue("@FkIdUser", publicationLike.RIdUser);
@@ -165,10 +165,10 @@ namespace BookSource.DAL
         }
         public bool DeleteLikeToPublication(PublicationLikes publicationLike)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 string query = "DELETE FROM PublicationLikes WHERE FkIdPublication = @FkIdPublication AND FkIdUser = @FkIdUser ";
-                SqlCommand cmd = new SqlCommand(query, connection);
+                NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
 
                 cmd.Parameters.AddWithValue("@FkIdPublication", publicationLike.RIdPublication);
                 cmd.Parameters.AddWithValue("@FkIdUser", publicationLike.RIdUser);
